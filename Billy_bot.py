@@ -15,8 +15,8 @@ def get_weather(city_message):
     try:
         owm = OWM('OWM_token')
         observation = owm.weather_manager().weather_at_place(city_message.text)
-        w = translator.translate(observation.weather.detailed_status)
-        answer = f"В городе {city_message.text} сейчас {w} \n"
+        weather = translator.translate(observation.weather.detailed_status)
+        answer = f"В городе {city_message.text} сейчас {weather} \n"
         bot.send_message(city_message.chat.id, answer)
     except NotFoundError:
         bot.send_message(city_message.chat.id, f'Сорян, сладкий, я не знаю такого города')
@@ -69,7 +69,7 @@ def first_message(message):
         else:
             bot.send_message(message.chat.id, '\nРовно ' + str(swallow) + '%')
 
-    elif message.text == "Расскажи анекдот" or message.text.lower()[:6] == "анекдо":
+    elif message.text.lower()[:16] == "расскажи анекдот" or message.text.lower()[:6] == "анекдо":
         bot.send_message(message.chat.id, get_anekdot())
 
     elif message.text.lower()[:7] == 'cмешной' or message.text.lower()[:7] == 'хороший':
@@ -78,10 +78,10 @@ def first_message(message):
     elif message.text.lower()[:7] == 'спасибо':
         bot.send_message(message.chat.id, '\nЯ твой fucking slave')
 
-    elif message.text.lower() == message.text.lower()[:2] == 'ха' or message.text.lower()[:2] == 'ах':
+    elif message.text.lower()[:2] == 'ха' or message.text.lower()[:2] == 'ах':
         bot.send_message(message.chat.id, '\nСоласен, умора вообще')
 
-    elif message.text.lower() == message.text.lower()[:6] == 'фигня' or message.text.lower()[:8] == 'не очень':
+    elif message.text.lower()[:6] == 'фигня' or message.text.lower()[:8] == 'не очень':
         bot.send_message(message.chat.id, '\nСорян, попробую еще((\n')
         bot.send_message(message.chat.id, get_anekdot())
 
@@ -113,7 +113,7 @@ def first_message(message):
         markup.add(item1, item2, item3)
 
         bot.send_message(message.chat.id, "Oh, I'm fucking cumming, а ты сам как?", reply_markup=markup)
-    elif message.text == 'Дай совет':
+    elif message.text.lower()[:9] == 'дай совет':
         markup = types.InlineKeyboardMarkup(row_width=2)
         item1 = types.InlineKeyboardButton("Сейчас идет дождь", callback_data='rain')
         item2 = types.InlineKeyboardButton("Сейчас солнечно", callback_data='shiny')
@@ -122,7 +122,7 @@ def first_message(message):
 
         bot.send_message(message.chat.id, 'Какая сейчас погода?', reply_markup=markup)
 
-    elif message.text == 'Билли, подскажи погоду':
+    elif message.text == 'Билли, подскажи погоду' or message.text.lower()[:6] == "погода":
         bot.send_message(message.chat.id, 'В каком городе ты хочешь узнать погоду?')
         bot.register_next_step_handler(message, get_weather)
     else:
@@ -134,33 +134,37 @@ def callback_inline(call):
     try:
         if call.message:
             if call.data == 'good':
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                      text="Oh, I'm fucking cumming, а ты сам как?", reply_markup=None)
                 bot.send_message(call.message.chat.id, 'Наверное ты suck some dick?')
                 bot.answer_callback_query(callback_query_id=call.id, show_alert=True,
                                           text="Установил тебе майнер, проверяй))")
+
+            elif call.data == 'bad':
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Oh, I'm fucking cumming, а ты сам как?", reply_markup=None)
-            elif call.data == 'bad':
                 bot.send_message(call.message.chat.id, 'Тогда stick your finger and be happy')
                 bot.answer_callback_query(callback_query_id=call.id, show_alert=True,
                                           text="Установил тебе майнер, проверяй))")
+
+            elif call.data == 'tyan':
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       text="Oh, I'm fucking cumming, а ты сам как?", reply_markup=None)
-            elif call.data == 'rain':
-                bot.send_message(call.message.chat.id, 'Сиди дома и fisting is 300 bucks')
-                bot.answer_callback_query(callback_query_id=call.id)
-                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                      text="Какая сейчас погода?", reply_markup=None)
-            elif call.data == 'shiny':
-                bot.send_message(call.message.chat.id, "Иди на улицу и Oh shit i'm sorry")
-                bot.answer_callback_query(callback_query_id=call.id)
-                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                      text="Какая сейчас погода?", reply_markup=None)
-            elif call.data == 'tyan':
                 bot.send_message(call.message.chat.id,
                                  'Ты хочешь меня ♂FUCK♂-♂FUCK♂-♂FUCK♂ а я хочу ♂THREE HUNDRED BUCKS♂')
                 bot.answer_callback_query(callback_query_id=call.id)
+
+            elif call.data == 'rain':
                 bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                      text="Oh, I'm fucking cumming, а ты сам как?", reply_markup=None)
+                                      text="Какая сейчас погода?", reply_markup=None)
+                bot.send_message(call.message.chat.id, 'Сиди дома и fisting is 300 bucks')
+                bot.answer_callback_query(callback_query_id=call.id)
+
+            elif call.data == 'shiny':
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                      text="Какая сейчас погода?", reply_markup=None)
+                bot.send_message(call.message.chat.id, "Иди на улицу и Oh shit i'm sorry")
+                bot.answer_callback_query(callback_query_id=call.id)
 
     except Exception as e:
         print(repr(e))
