@@ -1,14 +1,17 @@
 import random
-import bs4
+import logging
 import requests
-import telebot
+from telebot import types, TeleBot
+from bs4 import BeautifulSoup
+import config
 from pyowm import OWM
 from pyowm.commons.exceptions import NotFoundError
-from telebot import types
 from translate import Translator
 
+logging.basicConfig(level=logging.INFO)
 translator = Translator(from_lang='en', to_lang='ru')
-bot = telebot.TeleBot("Bot_token")
+bot = TeleBot(config.BOT_TOKEN)
+
 phrases = {
     "wrong_city": ["Прости, сладкий, я не знаю такого города", "Ты пытаешься меня обмануть", "Попробуй другой город", "Что-то ты говоришь не так"],
     "good_joke": ["Спасибо, Dungeon master"],
@@ -29,10 +32,11 @@ phrases = {
 def get_weather(city_message):
     """Function for getting weather forecast"""
     try:
-        owm = OWM('OWM_token')
+        owm = OWM(config.OWM_TOKEN)
         observation = owm.weather_manager().weather_at_place(city_message.text)
         weather = translator.translate(observation.weather.detailed_status)
         answer = f"В городе {city_message.text} сейчас {weather} \n"
+        logging.info("Билли рассказал какая погода в неком городе")
         bot.send_message(city_message.chat.id, answer)
     except NotFoundError:
         bot.send_message(city_message.chat.id, random.choice(phrases['wrong_city']))
@@ -42,7 +46,7 @@ def get_joke():
     """Function for getting a random joke"""
     z = ''
     s = requests.get('http://anekdotme.ru/random')
-    b = bs4.BeautifulSoup(s.text, "html.parser")
+    b = BeautifulSoup(s.text, "html.parser")
     p = b.select('.anekdot_text')
     for x in p:
         s = (x.getText().strip())
@@ -68,10 +72,12 @@ def send_welcome(message):
 
 @bot.message_handler(content_types=['text'])
 def message_function(message):
+    logging.info("Билли ответил на сообщение")
     user_message = message.text.lower()
     user_message = [c for c in user_message if c in 'абвгдеёжзийклмнопрстуфхцчшщъьэюя abcdefghijklmnopqrstuvwxyz']
     user_message = ''.join(user_message)
     # if message.chat.type == 'private':
+
     if user_message == 'какой у меня шанс на swallow cum сегодня':
         swallow = random.randint(0, 100)
         if swallow == 100:
@@ -154,6 +160,7 @@ def message_function(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_func(call):
+    logging.info("Билли ответил на сообщение")
     try:
         if call.message:
             if call.data == 'good':
